@@ -1,0 +1,41 @@
+{
+    "files.autoSave": "afterDelay",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "eslint.workingDirectories": [
+        "./server"
+    ],
+    "editor.bracketPairColorization.enabled": true,
+    "eslint.format.enable": true,
+    "eslint.packageManager": "yarn",
+    "eslint.run": "onSave",
+    "eslint.alwaysShowStatus": true,
+    "files.eol": "\n",
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "[mongodb]": {
+        "editor.defaultFormatter": "mongodb.mongodb-vscode",
+        "editor.quickSuggestions": {
+            "other": true,
+            "comments": false,
+            "strings": true
+        }
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "editor.tabSize": 2,
+    "mdb.confirmRunAll": false,
+    "restoreTerminals.terminals": [
+        {
+            "splitTerminals": [
+                {
+                    "name": "server",
+                    "commands": [
+                        "cd server",
+                        "yarn start:dev"
+                    ]
+                }
+            ]
+        }
+    ]
+}

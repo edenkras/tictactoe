@@ -52,28 +52,28 @@ export class GamesService {
     gameId: string,
     username: string,
     index: number,
-  ): Promise<GameDocument | string> {
+  ): Promise<GameDocument> {
     const game = await this.findById(gameId);
     if (!game) {
-      return 'Game does not exist';
+      throw new HttpException('Game does not exist');
     }
     if (game.status !== GameStatus.Playing) {
-      return 'Game finished';
+      throw new HttpException('Game finished');
     }
     if (game.turn !== username) {
-      return "Not player's turn";
+      throw new HttpException("Not player's turn");
     }
     if (index < 0 || index > 8) {
-      return 'Index out of range';
+      throw new HttpException('Index out of range');
     }
     if (game.board[index] !== '') {
-      return 'Occupied index';
+      throw new HttpException('Occupied index');
     }
     game.board[index] = username;
     game.turn = game.turn === game.host ? game.guest : game.host;
 
     // Check if current player won
-    if (this.winnerCheck(game.board)) {
+    if (this.winnerCheck(game.board, index)) {
       game.status =
         username === game.host ? GameStatus.HostWon : GameStatus.GuestWon;
     }
@@ -85,29 +85,36 @@ export class GamesService {
     return await game.save();
   }
 
-  private winnerCheck(board: string[]): string | undefined {
-    for (let i = 0; i < 3; i++) {
-      // Row
-      if (
-        board[i * 3] === board[i * 3 + 1] &&
-        board[i * 3] === board[i * 3 + 2]
-      ) {
-        return board[i * 3];
-      }
-      // Column
-      if (
-        board[i * 3] === board[i * 3 + 3] &&
-        board[i * 3] === board[i * 3 + 6]
-      ) {
-        return board[i * 3];
-      }
+  private winnerCheck(board: string[], lastMove: number): string | undefined {
+    const lastMoveRow = Math.floor(lastMove / 3);
+    const lastMoveCol = lastMove % 3;
+    // Row
+    if (
+      board[lastMoveRow * 3] === board[lastMoveRow * 3 + 1] &&
+      board[lastMoveRow * 3] === board[lastMoveRow * 3 + 2]
+    ) {
+      return board[lastMoveRow * 3];
+    }
+    // Column
+    if (
+      board[lastMoveCol] === board[lastMoveCol + 3] &&
+      board[lastMoveCol] === board[lastMoveCol + 6]
+    ) {
+      return board[lastMoveCol];
     }
     // Diagonals
-    if (board[0] === board[4] && board[0] === board[8]) {
-      return board[4];
-    }
-    if (board[2] === board[4] && board[2] === board[6]) {
-      return board[4];
+    if (lastMove + 1 % 2 !== 0) {
+      if (lastMoveRow === lastMoveCol) {
+        if (board[0] === board[4] && board[0] === board[8]) {
+          return board[4];
+        } else if (lastMoveRow === 1) {
+          if (board[2] === board[4] && board[2] === board[6]) {
+            return board[4];
+          }
+        }
+      } else if (board[2] === board[4] && board[2] === board[6]) {
+        return board[4];
+      }
     }
   }
 
